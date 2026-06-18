@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Админ-панель</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f0f0f0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+      }
+      h2 {
+        color: #2980b9;
+        font-size: 18px;
+      }
+
+      .login-box {
+        max-width: 300px;
+        margin: 100px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+      .login-box input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .login-box button {
+        width: 100%;
+        padding: 10px;
+        background: #2980b9;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .login-box button:hover {
+        background: #1a6a8f;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background: #2c3e50;
+        color: white;
+      }
+      tr:hover {
+        background: #f5f5f5;
+      }
+
+      .status-new {
+        background: #f39c12;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 12px;
+        color: white;
+      }
+      .status-learning {
+        background: #2980b9;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 12px;
+      }
+      .status-completed {
+        background: #27ae60;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 12px;
+      }
+
+      .filters {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .filters select,
+      .filters button {
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+      .filters button {
+        background: #2980b9;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .filters button:hover {
+        background: #1a6a8f;
+      }
+      .filters button:last-child {
+        background: #7f8c8d;
+      }
+      .filters button:last-child:hover {
+        background: #636e72;
+      }
+
+      .pagination {
+        margin-top: 20px;
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+      }
+      .pagination button {
+        padding: 5px 12px;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: white;
+      }
+      .pagination button:hover {
+        background: #2980b9;
+        color: white;
+      }
+
+      .logout-btn {
+        float: right;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .logout-btn:hover {
+        background: #c0392b;
+      }
+      .error {
+        color: #e74c3c;
+        margin-top: 10px;
+      }
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loginForm" class="login-box">
+      <h2>Вход для администратора</h2>
+      <input type="text" id="login" placeholder="Логин" value="Admin26" />
+      <input
+        type="password"
+        id="password"
+        placeholder="Пароль"
+        value="Demo20"
+      />
+      <button onclick="adminLogin()">Войти</button>
+      <div id="loginError" class="error"></div>
+      <p style="margin-top: 15px">
+        <a href="#" onclick="alert('Страница входа для пользователей')"
+          >← Обычный вход</a
+        >
+      </p>
+    </div>
+
+    <div id="adminPanel" style="display: none">
+      <div class="container">
+        <div class="clearfix">
+          <button class="logout-btn" onclick="logout()">Выйти</button>
+          <h1>Панель администратора</h1>
+        </div>
+        <h2>Управление заявками на обучение</h2>
+
+        <div class="filters">
+          <select id="statusFilter">
+            <option value="все">Все статусы</option>
+            <option value="Новая">Новая</option>
+            <option value="Идет обучение">Идет обучение</option>
+            <option value="Обучение завершено">Обучение завершено</option>
+          </select>
+          <button onclick="loadRequests()">Применить</button>
+          <button onclick="resetFilters()">Сбросить</button>
+        </div>
+
+        <div id="requestsList">Загрузка...</div>
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </div>
+
+    <script>
+      let currentPage = 1;
+
+      async function adminLogin() {
+        const login = document.getElementById("login").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch(
+            "http://localhost:3000/api/admin/login",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ login, password }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (response.ok) {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("adminPanel").style.display = "block";
+            loadRequests();
+          } else {
+            document.getElementById("loginError").innerText = result.error;
+          }
+        } catch (error) {
+          document.getElementById("loginError").innerText =
+            "Ошибка подключения";
+        }
+      }
+
+      async function loadRequests() {
+        const status = document.getElementById("statusFilter").value;
+        const url = `http://localhost:3000/api/admin/requests?status=${status}&page=${currentPage}&limit=10`;
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          displayRequests(data.requests || []);
+          displayPagination(data);
+        } catch (error) {
+          document.getElementById("requestsList").innerHTML =
+            "<p>Ошибка загрузки</p>";
+        }
+      }
+
+      function displayRequests(requests) {
+        if (requests.length === 0) {
+          document.getElementById("requestsList").innerHTML =
+            "<p>Нет заявок</p>";
+          return;
+        }
+
+        let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Транспорт</th>
+                <th>Дата</th>
+                <th>Оплата</th>
+                <th>Статус</th>
+                <th>Действие</th>
+            </tr>
+    `;
+
+        requests.forEach((req) => {
+          let statusClass = "";
+          if (req.status === "Новая") statusClass = "status-new";
+          else if (req.status === "Идет обучение")
+            statusClass = "status-learning";
+          else statusClass = "status-completed";
+
+          html += `
+            <tr>
+                <td>${req.id}</td>
+                <td>${req.surname || ""} ${req.name || ""}</td>
+                <td>${req.type_transport || ""}</td>
+                <td>${
+                  req.start_date
+                    ? new Date(req.start_date).toLocaleDateString()
+                    : "—"
+                }</td>
+                <td>${req.payment_type || ""}</td>
+                <td><span class="${statusClass}">${req.status || ""}</span></td>
+                <td>
+                    <select onchange="changeStatus(${req.id}, this.value)">
+                        <option value="Новая" ${
+                          req.status === "Новая" ? "selected" : ""
+                        }>Новая</option>
+                        <option value="Идет обучение" ${
+                          req.status === "Идет обучение" ? "selected" : ""
+                        }>Идет обучение</option>
+                        <option value="Обучение завершено" ${
+                          req.status === "Обучение завершено" ? "selected" : ""
+                        }>Обучение завершено</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+        });
+
+        html += `</table>`;
+        document.getElementById("requestsList").innerHTML = html;
+      }
+
+      async function changeStatus(requestId, newStatus) {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/admin/requests/${requestId}/status`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: newStatus }),
+            }
+          );
+
+          if (response.ok) {
+            alert("Статус изменён!");
+            loadRequests();
+          } else {
+            const error = await response.json();
+            alert("Ошибка: " + error.error);
+          }
+        } catch (error) {
+          alert("Ошибка подключения");
+        }
+      }
+      function displayPagination(data) {
+        if (!data || data.totalPages <= 1) {
+          document.getElementById("pagination").innerHTML = "";
+          return;
+        }
+
+        let html = "";
+        for (let i = 1; i <= data.totalPages; i++) {
+          html += `<button onclick="goToPage(${i})" style="background: ${
+            i === data.page ? "#2980b9" : "#ecf0f1"
+          }; color: ${i === data.page ? "white" : "black"}">${i}</button>`;
+        }
+        document.getElementById("pagination").innerHTML = html;
+      }
+
+      function goToPage(page) {
+        currentPage = page;
+        loadRequests();
+      }
+
+      function resetFilters() {
+        document.getElementById("statusFilter").value = "все";
+        currentPage = 1;
+        loadRequests();
+      }
+
+      function logout() {
+        document.getElementById("loginForm").style.display = "block";
+        document.getElementById("adminPanel").style.display = "none";
+        currentPage = 1;
+        document.getElementById("loginError").innerText = "";
+      }
+    </script>
+  </body>
+</html>

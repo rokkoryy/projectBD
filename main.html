@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Личный кабинет</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f0f2f5;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #1a1a2e;
+        color: white;
+        padding: 16px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 8px 18px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+      }
+
+      .btn-primary {
+        background: #2980b9;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1a6a8f;
+      }
+
+      .btn-danger {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c0392b;
+      }
+
+      .container {
+        max-width: 820px;
+        margin: 24px auto;
+        padding: 0 20px;
+      }
+
+      .page-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 18px;
+      }
+
+      .request-card {
+        background: white;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e8e8e8;
+        transition: 0.2s;
+      }
+
+      .request-card:hover {
+        border-color: #2980b9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .request-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 12px;
+      }
+
+      .request-transport {
+        font-weight: 600;
+        color: #1a1a2e;
+        font-size: 16px;
+      }
+
+      .request-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .request-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .status-new {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-learning {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      .status-completed {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .feedback-block {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #edf0f5;
+      }
+
+      .feedback-label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .feedback-text {
+        font-size: 14px;
+        color: #444;
+        background: #f8f9fc;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-top: 4px;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        background: #fafbfc;
+        transition: 0.2s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #2980b9;
+        background: white;
+      }
+
+      .btn-feedback {
+        margin-top: 6px;
+        background: #27ae60;
+        color: white;
+        padding: 6px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .btn-feedback:hover {
+        background: #219a52;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 40px 20px;
+        background: white;
+        border-radius: 16px;
+        color: #888;
+        border: 1px solid #e8e8e8;
+      }
+
+      .empty a {
+        color: #2980b9;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .empty a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Пассажирам.РФ</h1>
+      <div class="header-actions">
+        <a href="request2.html" class="btn btn-primary">Новая заявка</a>
+        <button onclick="logout()" class="btn btn-danger">Выйти</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="page-title">Мои заявки</div>
+
+      <div id="requestsList"></div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:3000/api";
+      const userId = localStorage.getItem("userId");
+
+      if (!userId) {
+        window.location.href = "login.html";
+      }
+
+      async function loadRequests() {
+        if (!userId) {
+          document.getElementById(
+            "requestsList"
+          ).innerHTML = `<div class="empty">Ошибка: пользователь не найден</div>`;
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/requests/user/${userId}`);
+          const data = await res.json();
+
+          const container = document.getElementById("requestsList");
+
+          if (!Array.isArray(data)) {
+            container.innerHTML = `<div class="empty">Ошибка загрузки данных</div>`;
+            return;
+          }
+
+          if (data.length === 0) {
+            container.innerHTML = `
+                        <div class="empty">
+                            У вас пока нет заявок.<br><br>
+                            <a href="request2.html">Создать первую заявку</a>
+                        </div>
+                    `;
+            return;
+          }
+
+          container.innerHTML = data
+            .map((req) => {
+              const statusClass =
+                req.status_requests === "Новая"
+                  ? "status-new"
+                  : req.status_requests === "Идет обучение"
+                  ? "status-learning"
+                  : "status-completed";
+
+              return `
+                        <div class="request-card">
+                            <div class="request-row">
+                                <span class="request-transport">${escapeHtml(
+                                  req.type_transport
+                                )}</span>
+                                <span class="status ${statusClass}">${escapeHtml(
+                req.status_requests
+              )}</span>
+                            </div>
+                            <div class="request-row" style="margin-top:6px;">
+                                <div class="request-meta">
+                                    <span>📅 ${
+                                      req.created_at
+                                        ? new Date(
+                                            req.created_at
+                                          ).toLocaleDateString("ru-RU")
+                                        : "—"
+                                    }</span>
+                                    <span>💳 ${escapeHtml(
+                                      req.payment_requests
+                                    )}</span>
+                                </div>
+                            </div>
+
+                            ${
+                              req.feedback
+                                ? `
+                                <div class="feedback-block">
+                                    <div class="feedback-label">Ваш отзыв</div>
+                                    <div class="feedback-text">${escapeHtml(
+                                      req.feedback
+                                    )}</div>
+                                </div>
+                            `
+                                : req.status_requests === "Обучение завершено"
+                                ? `
+                                <div class="feedback-block">
+                                    <div class="feedback-label">Оставить отзыв</div>
+                                    <textarea id="feedback-${req.requests_id}" rows="2" placeholder="Расскажите о своём обучении..."></textarea>
+                                    <button class="btn-feedback" onclick="addFeedback(${req.requests_id})">Отправить</button>
+                                </div>
+                            `
+                                : ""
+                            }
+                        </div>
+                    `;
+            })
+            .join("");
+        } catch (error) {
+          document.getElementById(
+            "requestsList"
+          ).innerHTML = `<div class="empty">Ошибка подключения к серверу</div>`;
+        }
+      }
+
+      async function addFeedback(requestId) {
+        const textarea = document.getElementById(`feedback-${requestId}`);
+        const feedback = textarea.value.trim();
+
+        if (!feedback) {
+          alert("Напишите отзыв");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/requests/${requestId}/feedback`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              feedback,
+              userId: parseInt(userId),
+            }),
+          });
+
+          if (res.ok) {
+            alert("Спасибо за отзыв!");
+            loadRequests();
+          } else {
+            const err = await res.json();
+            alert("Ошибка: " + (err.error || "что-то пошло не так"));
+          }
+        } catch (error) {
+          alert("Ошибка подключения");
+        }
+      }
+
+      function escapeHtml(text) {
+        if (!text) return "";
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      loadRequests();
+    </script>
+  </body>
+</html>
