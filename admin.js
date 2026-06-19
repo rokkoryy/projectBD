@@ -40,7 +40,6 @@ router.get("/requests", async (req, res) => {
         `;
     const params = [];
 
-    // Фильтр по статусу
     if (status && status !== "все") {
       sql += ` AND a.status = $${params.length + 1}`;
       params.push(status);
@@ -59,8 +58,8 @@ router.get("/requests", async (req, res) => {
     sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(limitNum, offset);
 
-    console.log("SQL:", sql); // Отладка
-    console.log("Params:", params); // Отладка
+    console.log("SQL:", sql);
+    console.log("Params:", params);
 
     const result = await db.query(sql, params);
 
