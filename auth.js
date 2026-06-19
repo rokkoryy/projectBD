@@ -4,7 +4,6 @@ const db = require("./connect");
 
 const router = express.Router();
 
-// Регистрация
 router.post("/register", async (req, res) => {
   try {
     const { login, password, name, lastName, middleName, email, phone } =
@@ -52,7 +51,6 @@ router.post("/register", async (req, res) => {
         .json({ error: "Введите корректный номер телефона" });
     }
 
-    // Проверяем не занят ли логин
     const checkUser = await db.query(
       "SELECT * FROM users_creds WHERE login = $1",
       [login]
@@ -62,7 +60,6 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Этот логин уже занят" });
     }
 
-    // Проверяем не занят ли email
     const checkEmail = await db.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
@@ -71,10 +68,8 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Этот email уже зарегистрирован" });
     }
 
-    // Шифруем пароль
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Сохраняем пользователя в таблицу users с ролью 3 (Пользователь)
     const userResult = await db.query(
       `INSERT INTO users (name, middlename, surname, email, phone, user_role_id) 
              VALUES ($1, $2, $3, $4, $5, $6) 
@@ -84,7 +79,6 @@ router.post("/register", async (req, res) => {
 
     const userId = userResult.rows[0].id;
 
-    // Сохраняем логин и пароль в users_creds
     await db.query(
       `INSERT INTO users_creds (user_id, login, pass) 
              VALUES ($1, $2, $3)`,
@@ -103,7 +97,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Вход
 router.post("/login", async (req, res) => {
   try {
     const { login, password } = req.body;

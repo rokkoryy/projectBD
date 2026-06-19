@@ -3,7 +3,6 @@ const db = require("./connect");
 
 const router = express.Router();
 
-// Вход админа
 router.post("/login", (req, res) => {
   try {
     const { login, password } = req.body;
@@ -24,7 +23,6 @@ router.post("/login", (req, res) => {
   }
 });
 
-// Получить все заявки (для админа)
 router.get("/requests", async (req, res) => {
   try {
     const { status, sort, page = 1, limit = 10 } = req.query;
@@ -48,7 +46,6 @@ router.get("/requests", async (req, res) => {
       params.push(status);
     }
 
-    // Сортировка
     const sortMap = {
       date_asc: "a.start_date ASC",
       date_desc: "a.start_date DESC",
@@ -58,7 +55,6 @@ router.get("/requests", async (req, res) => {
     const sortClause = sortMap[sort] || "a.start_date DESC";
     sql += ` ORDER BY ${sortClause}`;
 
-    // Пагинация
     const offset = (pageNum - 1) * limitNum;
     sql += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(limitNum, offset);
@@ -68,7 +64,6 @@ router.get("/requests", async (req, res) => {
 
     const result = await db.query(sql, params);
 
-    // Подсчёт общего количества
     let countSql = `SELECT COUNT(*) FROM applications WHERE 1=1`;
     const countParams = [];
     if (status && status !== "все") {
