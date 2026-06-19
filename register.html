@@ -2,17 +2,16 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Регистрация</title>
+    <title>AutoDrive - Регистрация</title>
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-
       body {
-        font-family: Arial, sans-serif;
-        background: #2c3e50;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #0f0e17;
         min-height: 100vh;
         display: flex;
         justify-content: center;
@@ -21,91 +20,90 @@
       }
 
       .container {
-        background: white;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        padding: 40px;
-        width: 100%;
         max-width: 450px;
-        border-radius: 10px;
+        width: 100%;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
       }
-
-      h2 {
+      .container h2 {
         text-align: center;
-        color: #2c3e50;
-        margin-bottom: 30px;
+        font-size: 28px;
+        color: #0f0e17;
+        margin-bottom: 6px;
       }
-
-      label {
+      .container .subtitle {
+        text-align: center;
+        color: #6b6b6b;
+        font-size: 14px;
+        margin-bottom: 24px;
+      }
+      .container label {
         display: block;
-        margin-bottom: 5px;
-        margin-top: 15px;
-        color: #555;
-        font-weight: bold;
-        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: #333;
+        margin-top: 14px;
+        margin-bottom: 4px;
       }
-
-      label:first-of-type {
+      .container label:first-of-type {
         margin-top: 0;
       }
-
-      input {
-        display: block;
+      .container input {
         width: 100%;
-        padding: 10px;
-        border: 1.5px solid #ddd;
-        border-radius: 6px;
+        padding: 12px 16px;
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
         font-size: 14px;
-        transition: border-color 0.2s;
+        transition: 0.3s;
+        background: #fafafa;
       }
-
-      input:focus {
+      .container input:focus {
+        border-color: #ff8906;
         outline: none;
-        border-color: #2980b9;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(255, 137, 6, 0.08);
       }
-
-      button {
-        padding: 12px;
-        background: #2980b9;
+      .container button {
+        width: 100%;
+        padding: 14px;
+        background: #ff8906;
         color: white;
         border: none;
-        cursor: pointer;
-        display: block;
-        width: 100%;
-        margin-top: 25px;
+        border-radius: 12px;
         font-size: 16px;
-        border-radius: 6px;
-        font-weight: bold;
-        transition: background 0.2s;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
-
-      button:hover {
-        background: #1a6a8f;
+      .container button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(255, 137, 6, 0.3);
       }
-
+      .container .link {
+        text-align: center;
+        margin-top: 16px;
+        color: #6b6b6b;
+        font-size: 14px;
+      }
+      .container .link a {
+        color: #ff8906;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .container .link a:hover {
+        text-decoration: underline;
+      }
       .error {
         color: #e74c3c;
         font-size: 13px;
         text-align: center;
         margin-top: 10px;
-        padding: 8px;
-        background: #fde8e8;
-        border-radius: 5px;
         display: none;
-      }
-
-      .link {
-        text-align: center;
-        margin-top: 15px;
-      }
-
-      .link a {
-        color: #2980b9;
-        text-decoration: none;
-        font-weight: bold;
-      }
-
-      .link a:hover {
-        text-decoration: underline;
       }
     </style>
   </head>

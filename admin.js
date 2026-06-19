@@ -90,7 +90,6 @@ router.get("/requests", async (req, res) => {
   }
 });
 
-// Изменить статус заявки
 router.put("/requests/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
@@ -102,7 +101,6 @@ router.put("/requests/:id/status", async (req, res) => {
       return res.status(400).json({ error: "Недопустимый статус" });
     }
 
-    // Проверяем существует ли заявка
     const checkResult = await db.query(
       "SELECT * FROM applications WHERE id = $1",
       [id]
@@ -112,7 +110,6 @@ router.put("/requests/:id/status", async (req, res) => {
       return res.status(404).json({ error: "Заявка не найдена" });
     }
 
-    // Обновляем статус
     await db.query("UPDATE applications SET status = $1 WHERE id = $2", [
       status,
       id,
